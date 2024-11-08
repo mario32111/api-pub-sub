@@ -1,0 +1,27 @@
+{
+  "name": "my-store",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "lint": "eslint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "eslint": "^9.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.2.0",
+    "@hapi/boom": "^10.0.1",
+    "express": "^4.21.1",
+    "joi": "^17.13.3"
+  }
+}

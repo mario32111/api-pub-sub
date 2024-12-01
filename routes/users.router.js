@@ -36,8 +36,13 @@ router.get('/:id',
 
 // Ruta para crear un nuevo usuario
 router.post('/',
-  validatorHandler(createUserSchema, 'body'), // Validación del cuerpo
+  validatorHandler(createUserSchema, 'body'),
   async (req, res) => {
+    const body = req.body;
+    const newUser = await service.create(body);
+    res.status(201).json(newUser);
+  }
+/*   async (req, res) => {
     try {
       const body = req.body;
       const newUser = {
@@ -56,7 +61,7 @@ router.post('/',
         message: error.message,
       });
     }
-  }
+  } */
 );
 
 // Ruta para actualizar un usuario

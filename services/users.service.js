@@ -25,12 +25,14 @@ class UsersService {
   }
 
   async create(data) {
-    const newUser = {
+    const newUser = await models.User.create(data)
+    return newUser;
+/*     const newUser = {
       id: crypto.randomUUID(),
       ...data,
     };
     this.users.push(newUser);
-    return newUser;
+    return newUser; */
   }
 
   async find() {
@@ -47,18 +49,26 @@ class UsersService {
   }
 
   async findOne(id) {
-    const user = this.users.find((item) => item.id === id);
+    const user = await models.User.findByPk(id);
+    if (!user) {
+      throw boom.notFound('user not found');
+    }
+    return user;
+/*     const user = this.users.find((item) => item.id === id);
     if (!user) {
       throw boom.notFound('user not found');
     }
     if (user.isBlock) {
       throw boom.conflict('user is block')
     }
-    return user;
+    return user; */
   }
 
   async update(id, changes) {
-    const index = this.users.findIndex((item) => item.id === id);
+    const user = await this.findOne(id);
+    const rta = await user.update(changes);
+    return rta;
+/*     const index = this.users.findIndex((item) => item.id === id);
     if (index === -1) {
       throw boom.notFound('User not found');
     }
@@ -67,16 +77,19 @@ class UsersService {
       ...user,
       ...changes,
     };
-    return this.users[index];
+    return this.users[index]; */
   }
 
   async delete(id) {
-    const index = this.users.findIndex((item) => item.id === id);
+    const user = await this.findOne(id);
+    await user.destroy();
+    return {id};
+/*     const index = this.users.findIndex((item) => item.id === id);
     if (index === -1) {
       throw boom.notFound('User not found');
     }
     this.users.splice(index, 1);
-    return { id };
+    return { id }; */
   }
 }
 

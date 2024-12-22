@@ -19,6 +19,12 @@ const UserSchema = {
     allowNull: false,
     type: DataTypes.STRING,
   },
+  role: {
+    allowNull: false,
+    type: DataTypes.STRING,
+    defaultValue: 'customer'
+  },
+
   //NO SE DEBEN USAR CAMEL CASE
   createdAt: {
     allowNull: false,

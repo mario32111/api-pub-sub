@@ -44,12 +44,16 @@ class UsersService {
 /*     const client = await getConnection();
     const rta = await client.query('SELECT * FROM task');
     return rta.rows; */
-    const rta = await models.User.findAll();
+    const rta = await models.User.findAll({
+      include: ['customer']
+    });
     return rta;
   }
 
   async findOne(id) {
-    const user = await models.User.findByPk(id);
+    const user = await models.User.findByPk(id, {
+      include: ['customer']
+    });
     if (!user) {
       throw boom.notFound('user not found');
     }

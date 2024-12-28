@@ -1,6 +1,5 @@
-const {   Model, DataTypes, Sequelize } = require('sequelize');
-const { defaultValueSchemable } = require('sequelize/lib/utils');
-
+const { Model, DataTypes, Sequelize } = require('sequelize');
+const { CATEGORY_TABLE } = require('./category.model');
 const PRODUCT_TABLE = 'products';
 
 const ProductSchema = {
@@ -31,14 +30,29 @@ const ProductSchema = {
     type: DataTypes.DATE,
     field: 'created_at',
     defaultValue: Sequelize.NOW
+  },
+
+  //tambien esto es parte de la reclacion
+  //EN ESTE CASO SE QUITA EL UNIQUE POR QUE ES UNA RELACION 1:N
+  categoryId: {
+    field: 'category_id',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    //AQUI SE RELACIONA EL CAMPO USER ID CON EL ID DE LA TABLA USUARIO
+    references: {
+      model: CATEGORY_TABLE,
+      key: 'id'//HACIA DONDE DE LA OTRA TABLA VA A ESTAR REFERIDA
+    },
+    onUpdate: 'CASCADE',//QUE QUIERO QUE HAGA CUANDO SE ACTUALICE EL ID
+    onDelete: 'SET NULL'//QUE QUIERO QUE HAGA CUANDO SE ELIMINE
   }
 };
 
 class Product extends Model {
   static associate(models) {
-    // Aquí defines las asociaciones con otras tablas si las hay.
-    // Por ejemplo:
-    // this.belongsTo(models.Category, { as: 'category', foreignKey: 'categoryId' });
+    this.belongsTo(models.Category, {
+      as: 'category'
+    });
   }
   static config(sequelize) {
     return {

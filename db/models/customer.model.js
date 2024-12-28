@@ -4,7 +4,7 @@ const { USER_TABLE } = require('./user.model')
 
 const CUSTOMER_TABLE = 'customers';
 
-const CustomerSchema =  {
+const CustomerSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
@@ -36,7 +36,7 @@ const CustomerSchema =  {
     field: 'user_id',
     allowNull: false,
     type: DataTypes.INTEGER,
-    unique: true, 
+    unique: true,
     //AQUI SE RELACIONA EL CAMPO USER ID CON EL ID DE LA TABLA USUARIO
     references: {
       model: USER_TABLE,
@@ -50,7 +50,11 @@ const CustomerSchema =  {
 class Customer extends Model {
   //aqui se hacen las relaciones
   static associate(models) {
-    this.belongsTo(models.User, {as: 'user'});
+    this.belongsTo(models.User, { as: 'user' });
+    this.hasMany(models.Order, {
+      as: 'orders',
+      foreignKey: 'customerId'
+    });
   }
 
   static config(sequelize) {

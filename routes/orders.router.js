@@ -6,6 +6,7 @@ const {
   createOrderSchema,
   getOrderSchema,
   updateOrderSchema,
+  addItemSchema
 } = require('../schemas/order.schema');
 
 const router = express.Router();
@@ -72,4 +73,17 @@ router.delete('/:id',
   }
 );
 
+
+
+router.post('/add-item',
+  validationHandler(addItemSchema , 'body'),
+  async (req, res, next) => {
+    try {
+      const body = req.body;
+      res.status(201).json(await service.addItem(body));
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 module.exports = router;

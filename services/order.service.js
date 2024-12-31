@@ -21,7 +21,8 @@ class CategoryService {
       include: [{
         association: 'customer',
         include: ['user']
-      }]
+      },
+      'items'],
     });
     if (!user) {
       throw boom.notFound('order not found');
@@ -38,6 +39,11 @@ class CategoryService {
     const model = await models.Order.findOne(id);
     await model.destroy();
     return { rta: true };
+  }
+
+  async addItem(data) {
+    const newItem = await models.OrderProduct.create(data);
+    return newItem;
   }
 }
 

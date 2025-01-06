@@ -10,7 +10,7 @@ const URI = `postgres://${USER}:${PASSWORD}@${config.dbHost}:${config.dbPort}/${
 //esto ya implementa la conexion de tipo pool
 const sequelize = new Sequelize(URI , {
   dialect: 'postgres',
-  logging: true,
+  logging: config.isProd ? false : true
 });
 
 setupModels(sequelize);

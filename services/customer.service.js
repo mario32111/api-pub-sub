@@ -1,9 +1,10 @@
 const boom = require('@hapi/boom');
 const { models } = require('../libs/sequelize');
+const bcrypt = require('bcrypt');
 
 class CustomerService {
 
-  constructor() {}
+  constructor() { }
   //ESTO RESUELVE DE VORMA ANIDADA LA ASOCIACION
   async find() {
     const rta = await models.Customer.findAll();
@@ -19,7 +20,15 @@ class CustomerService {
   }
 
   async create(data) {
-    const newCustomer = await models.Customer.create(data,{
+    const hash = await bcrypt.hash(data.user.password, 10);
+    const newData = {
+      ...data,
+      user: {
+        ...data.user,
+        password: hash
+      }
+    };
+    const newCustomer = await models.Customer.create(newData, {
       include: ['user']
     });
     return newCustomer;

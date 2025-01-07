@@ -1,13 +1,13 @@
 const { Strategy, ExtractJwt } = require('passport-jwt');
-const { config } = require('../../../config');
+const { config } = require('../../../config/config');
 const options = {
   secretOrKey: config.jwtSecret,
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
 }
 
-//esto es una validacion de usuario y contraseña en local
-const jwtStrategy = new Strategy({
-
+//esta estrategia ya te entrega el payload del token
+const JwtStrategy = new Strategy(options, async (payload, done) => {
+  return done(null, payload);
 });
 
-module.exports = jwtStrategy;
+module.exports = JwtStrategy;

@@ -1,7 +1,6 @@
 const boom = require('@hapi/boom');
 
 const { models } = require('../libs/sequelize');
-const { where } = require('sequelize');
 class OrderService {
 
   constructor() {

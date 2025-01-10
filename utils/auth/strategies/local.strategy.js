@@ -1,9 +1,7 @@
 const { Strategy } = require('passport-local');
-const UsersService = require('../../../services/users.service');
-const boom = require('@hapi/boom');
-const bcrypt = require('bcrypt');
+const AuthService = require('../../../services/auth.service');
 
-const service = new UsersService();
+const service = new AuthService();
 
 //esto es una validacion de usuario y contraseña en local
 const LocalStrategy = new Strategy({
@@ -12,18 +10,7 @@ const LocalStrategy = new Strategy({
   passwordField: 'password'
 }, async (email, password, done) => {
   try {
-    const user = await service.findByEmail(email);
-    //si no existe el usuario
-    if (!user) {
-      return done(boom.unauthorized, false);
-    }
-
-    //si la contraseña no es correcta
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return done(boom.unauthorized, false);
-    }
-    delete user.dataValues.password;
+    const user = await service.findByEmail(email,password);
     //si todo esta bien
     done(null, user);
 

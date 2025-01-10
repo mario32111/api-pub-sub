@@ -1,10 +1,26 @@
 const boom = require('@hapi/boom');
 
 const { models } = require('../libs/sequelize');
-class CategoryService {
+const { where } = require('sequelize');
+class OrderService {
 
-  constructor(){
+  constructor() {
   }
+  async findByUser(userId) {
+    const orders = await models.Order.findAll({
+      //esto hace consulas a las tablas relacionadas (asociaciones)
+      where: {
+        '$customer.user.id$': userId
+      },
+      include: [{
+        association: 'customer',
+        include: ['user']
+      },
+      ],
+    });
+    return orders;
+  }
+
   async create(data) {
     const newOrder = await models.Order.create(data);
     return newOrder;
@@ -17,12 +33,12 @@ class CategoryService {
 
   async findOne(id) {
     //esto es una resolucion anidada,muestra el usuario,el cliente y a orden
-    const user = await models.Order.findByPk(id,{
+    const user = await models.Order.findByPk(id, {
       include: [{
         association: 'customer',
         include: ['user']
       },
-      'items'],
+        'items'],
     });
     if (!user) {
       throw boom.notFound('order not found');
@@ -47,4 +63,4 @@ class CategoryService {
   }
 }
 
-module.exports = CategoryService;
+module.exports = OrderService;

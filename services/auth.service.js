@@ -3,7 +3,7 @@ const { models } = require('../libs/sequelize');
 const UsersService = require('./users.service');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const config = require('../config/config');
+const { config } = require('../config/config');
 const nodemailer = require("nodemailer");
 
 const service = new UsersService(models.User);
@@ -40,30 +40,45 @@ class AuthService {
     };
   }
 
-  async sendMail(email) {
+  async sendRecoveryPassword(email) {
     const user = await service.findByEmail(email);
     // Si no existe el usuario
     if (!user) {
       throw boom.unauthorized('Usuario no encontrado');
     }
+    const payload = {
+      sub: user.id
+    };
 
+    const token = jwt.sign(payload, config.jwtSecret, {expiresIn: '15min'});
+
+    const link = `http://myfrontend/recovery/?token=${token}`;
+    await service.update(user.id, {recovery_token: token});
+
+    const mail =
+    {
+      from: config.smtpEmail, // sender address
+      to: `${user.email}`, // list of receivers
+      subject: "Email para recuperar contraseña", // Subject line
+      html: `<b>Ingresa a este link => ${link}</b>`, // html body
+    };
+
+    const rta = await this.sendMail(mail);
+    return rta;
+  }
+
+  async sendMail(infoMail) {
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // true for port 465, false for other ports, 587 in false
+      host: config.smtpHost,
+      port: config.smtpPort,
+      secure: config.smtpPort === 465, // true si es 465, de lo contrario false
       auth: {
-        user: 'marioge44@gmail.com',
-        pass: 'gzcn qqeo hngt dvtj',
+        user: config.smtpEmail,
+        pass: config.smtpPassword,
       },
     });
 
-    await transporter.sendMail({
-      from: 'marioge44@gmail.com', // sender address
-      to: `${user.email}`, // list of receivers
-      subject: "Recuperación de contraseñaxd", // Subject line
-      text: "alguien ahi?", // plain text body
-      html: "<b>Kiuboooooooooooooooooooooooo</b>", // html body
-    });
+    await transporter.sendMail(infoMail);
 
     return { message: 'Email enviado' };
   }

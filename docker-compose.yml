@@ -1,40 +1,25 @@
+version: '3.8'
+
 services:
-  postgres:
-    image: postgres:13
-    environment:
-      - POSTGRES_DB=my_store
-      - POSTGRES_USER=mario
-      - POSTGRES_PASSWORD=admin123
+  my_api:
+    build: .
     ports:
-      - "5432:5432"
+      - "3000:3000"
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - .:/usr/src/app  # Monta el directorio actual (.) en el contenedor
+    networks:
+      - my_network
 
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@mail.com
-      - PGADMIN_DEFAULT_PASSWORD=root
+  mosquitto:
+    image: eclipse-mosquitto
     ports:
-      - 5050:80
-
-  mysql:
-    image: mysql:5
-    environment:
-      - MYSQL_DATABASE=my_store
-      - POSTGRES_USER=root
-      - MYSQL_ROOT_PASSWORD=admin123
-      - MYSQL_PORT=3306
-    ports:
-      - 3306:3306
+      - "1883:1883"
     volumes:
-      - ~/mysql_data:/var/lib/mysql
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf  # Montar archivo de configuración
+    networks:
+      - my_network
 
-  phpmyadmin:
-    # Aquí comienza el servicio para phpMyAdmin
-    image: phpmyadmin/phpmyadmin
-    environment:
-      - MYSQL_ROOT_PASSWORD=admin123
-      - PMA_HOST=mysql # Esto apunta al servicio de mysql
-    ports:
-      - 8081:80
+
+networks:
+  my_network:
+    driver: bridge

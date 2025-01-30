@@ -4,11 +4,27 @@ const mqtt = require("mqtt");
 const app = express();
 const port = 3000;
 
-// Cambiar localhost por el nombre del servicio definido en docker-compose.yml
-const mqttClient = mqtt.connect("mqtt://mosquitto:1883");
+// Configurar MQTT
+const brokerUrl = 'mqtt://mosquitto:1883'; // Cambia por tu broker
+const mqttClient = mqtt.connect(brokerUrl);
 
-mqttClient.on("connect", () => {
-  console.log("Conectado al broker MQTT");
+mqttClient.on('connect', () => {
+  console.log('Conectado al broker MQTT');
+
+  // Suscribirse al tema "casa/sala/temperatura"
+  const topic = 'casa/sala/temperatura';
+  mqttClient.subscribe(topic, (err) => {
+    if (err) {
+      console.error('Error al suscribirse al tema:', err);
+    } else {
+      console.log(`Suscrito al tema: ${topic}`);
+    }
+  });
+});
+mqttClient.on('message', (topic, message) => {
+  const msg = message.toString();
+  console.log(`Mensaje recibido en ${topic}: ${msg}`);
+  // Aquí podrías guardar el mensaje en la base de datos o procesarlo
 });
 
 mqttClient.on("error", (err) => {

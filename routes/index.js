@@ -1,14 +1,10 @@
 const express = require('express');
+const mqttRouter = require('./mqtt.router');
 
-const exampleRouter = require('./example.router');
-
-
-function routerApi (app){
+function routerApi(app) {
   const router = express.Router();
-  app.use('/api/v1', router)
-  router.use('/example', exampleRouter);
-
-
+  app.use('/api/v1', router);
+  router.use('/mqtt', mqttRouter);
 }
 
 module.exports = routerApi;

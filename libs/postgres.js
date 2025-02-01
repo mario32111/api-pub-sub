@@ -6,7 +6,7 @@ async function getConnection() {
     port: '5432',
     user: 'mario',
     password: 'admin123',
-    database: 'my_store'
+    database: 'hydrolink'
   });
   await client.connect();
   return client;

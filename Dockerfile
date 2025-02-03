@@ -4,11 +4,14 @@ FROM node:16
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /usr/src/app
 
-# Copia los archivos del proyecto al contenedor
-COPY . .
+# Copia solo los archivos necesarios para instalar dependencias
+COPY package.json package-lock.json ./
 
 # Instala las dependencias del proyecto
 RUN npm install
+
+# Copia el resto del código
+COPY . .
 
 # Expone el puerto en el que la API escuchará
 EXPOSE 3000

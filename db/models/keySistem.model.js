@@ -34,7 +34,7 @@ const KeySistemSchema = {
 
 class KeySistem extends Model {
   static associate(models) {
-    this.hasMany(models.keys, { as: 'keys', foreignKey: 'keySystem_id' });
+    this.hasMany(models.Key, { as: 'key', foreignKey: 'keySystem_id' });
   }
 
   static config(sequelize) {

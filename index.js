@@ -1,5 +1,4 @@
 const express = require("express");
-const mqttClient = require("./mqttClient");
 const routerApi = require('./routes');
 const cors = require('cors');
 
@@ -17,4 +16,3 @@ app.listen(port, '0.0.0.0', () => {
   console.log(`API escuchando en http://0.0.0.0:${port}`);
 });
 
- 

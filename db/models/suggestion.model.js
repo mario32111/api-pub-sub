@@ -41,7 +41,7 @@ const SuggestionSchema = {
 
 class Suggestion extends Model {
   static associate(models) {
-    this.belongsTo(models.weather, { as: 'weather', foreignKey: 'weather_id' });
+    this.belongsTo(models.Weather, { as: 'weather', foreignKey: 'weather_id' });
   }
 
   static config(sequelize) {

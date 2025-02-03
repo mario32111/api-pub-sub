@@ -43,14 +43,14 @@ const WeatherSchema = {
 
 class Weather extends Model {
   static associate(models) {
-    this.hasOne(models.suggestion, { as: 'suggestion', foreignKey: 'weather_id' });
+    this.hasOne(models.Suggestion, { as: 'suggestion', foreignKey: 'weather_id' });
   }
 
   static config(sequelize) {
     return {
       sequelize,
-      tableName: WEATHER,
-      modelName: 'weather',
+      tableName: WEATHER_TABLE,
+      modelName: 'Weather',
       timestamps: false
     }
   }

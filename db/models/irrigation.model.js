@@ -76,11 +76,11 @@ const IrrigationSchema = {
 
 class Irrigation extends Model {
   static associate(models) {
-    this.hasMany(models.keySistem, {
+    this.hasMany(models.KeySistem, {
       as: 'keySistem',
       foreignKey: 'irrigation_id'
     });
-    this.hasMany(models.suggestion, {
+    this.hasMany(models.Suggestion, {
       as: 'suggestion',
       foreignKey: 'irrigation_id',
     });

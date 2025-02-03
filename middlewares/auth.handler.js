@@ -27,7 +27,7 @@ function checkRoles(...roles) {
     if (roles.includes(user.role)) {
       next();
     } else {
-      next(boom.unauthorized('Admin role is required'));
+      next(boom.unauthorized('This role is not allowed'));
     }
   }
 }

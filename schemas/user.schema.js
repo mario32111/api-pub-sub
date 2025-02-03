@@ -9,11 +9,10 @@ const lastNames = Joi.string().max(100); // Ajusta el máximo según tus necesid
 const gender = Joi.string().valid('male', 'female', 'other'); // Valores permitidos para género
 const phone = Joi.string().pattern(/^[0-9]{10}$/); // Asume un formato de 10 dígitos
 const zip_code = Joi.string().pattern(/^[0-9]{5}$/); // Asume un formato de 5 dígitos
-const hectares_to_irrigate = Joi.string().max(50); // Ajusta el máximo según tus necesidades
+const hectares_to_irrigate = Joi.number().max(50); // Ajusta el máximo según tus necesidades
 const birthdate = Joi.date().less('now'); // Fecha de nacimiento debe ser menor a la fecha actual
 const recoveryToken = Joi.string(); // Token de recuperación
-const role = Joi.string().min(5); // Rol del usuario
-
+const role = Joi.string().valid('user', 'device'); // Valores permitidos para el rol
 // Esquema para crear un usuario
 const createUserSchema = Joi.object({
   email: email.required(),
@@ -25,7 +24,7 @@ const createUserSchema = Joi.object({
   zip_code: zip_code.required(),
   hectares_to_irrigate: hectares_to_irrigate.required(),
   birthdate: birthdate.required(),
-  role: role.required(), // Si el rol es obligatorio
+  role: role.required(),
 });
 
 // Esquema para actualizar un usuario
@@ -39,7 +38,6 @@ const updateUserSchema = Joi.object({
   zip_code: zip_code,
   hectares_to_irrigate: hectares_to_irrigate,
   birthdate: birthdate,
-  role: role,
   recoveryToken: recoveryToken, // Si el token de recuperación se puede actualizar
 });
 

@@ -56,7 +56,12 @@ const UserSchema = {
     type: DataTypes.DATE,
     field: 'created_at', // Corrección del nombre
     defaultValue: Sequelize.NOW
-  }
+  },
+  role: {
+    allowNull: false,
+    type: DataTypes.STRING,
+    defaultValue: 'user'
+  },
 }
 
 class User extends Model {

@@ -16,5 +16,5 @@ COPY . .
 # Expone el puerto en el que la API escuchará
 EXPOSE 3000
 
-# Define el comando para ejecutar la API
-CMD ["npm", "start"]
+CMD ["npx", "nodemon", "--legacy-watch", "server.js"]
+

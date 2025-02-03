@@ -1,9 +1,7 @@
 const express = require('express');
 const passport = require('passport');
-const jwt = require('jsonwebtoken');
 const router = express.Router();
 const AuthService = require('../services/auth.service');
-const { config } = require('../config/config');
 
 const service = new AuthService();
 

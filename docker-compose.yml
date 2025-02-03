@@ -36,6 +36,8 @@ services:
       - my_network
     depends_on:
       - postgres
+    environment:
+      - NODE_ENV=development
 
   mosquitto:
     image: eclipse-mosquitto

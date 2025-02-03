@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 const { config } = require('./../config/config');
-const UserService = require('./users.service');
+const UserService = require('./user.service');
 const service = new UserService();
 const { models } = require('./../libs/sequelize');
 
@@ -33,9 +33,10 @@ class AuthService {
 
   signToken(user) {
     const payload = {
-      sub: user.id,
+      sub: user.id, 
       role: user.role
-    }
+    };
+    console.log("🚀 ~ AuthService ~ signToken ~  payload:",  payload)
     const token = jwt.sign(payload, config.jwtSecret);
     return {
       user,

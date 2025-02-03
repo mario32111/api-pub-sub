@@ -19,9 +19,7 @@ class UsersService {
   }
 
   async find() {
-    const rta = await models.User.findAll({
-      include: ['irrigation']
-    });
+    const rta = await models.User.findAll();
     return rta;
   }
 
@@ -33,9 +31,7 @@ class UsersService {
   }
 
   async findOne(id) {
-    const user = await models.User.findByPk(id, {
-      include: ['irrigation']
-    });
+    const user = await models.User.findByPk(id);
     if (!user) {
       throw boom.notFound('user not found');
     }

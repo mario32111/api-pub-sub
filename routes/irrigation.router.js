@@ -28,8 +28,8 @@ router.post('/',
   validatorHandler(createIrrigationSchema, 'body'),
   async (req, res) => {
     const body = req.body;
-    const newUser = await service.create(body);
-    res.status(201).json(newUser);
+    const newIrrigation = await service.create(body);
+    res.status(201).json(newIrrigation);
   }
 );
 

@@ -1,29 +1,31 @@
 const express = require('express');
 const validatorHandler = require('../middlewares/validator.handler');
-const { createUserSchema, updateUserSchema, getUserSchema } = require('../schemas/user.schema');
-const UserService = require('../services/user.service');
-const service = new UserService();
+const { createIrrigationSchema, updateIrrigationSchema, getIrrigationSchema } = require('../schemas/irrigation.schema');
+const IrrigationService = require('../services/irrigation.service');
+const service = new IrrigationService();
 const router = express.Router();
 const { checkRoles } = require('../middlewares/auth.handler');
 const passport = require('passport');
 
 router.get('/',
   passport.authenticate('jwt', { session: false }),
-  checkRoles('user'), 
+  checkRoles('user'),
   async (req, res) => {
-  try {
-    const users = await service.find();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-});
+    try {
+      const Irrigations = await service.find();
+      res.json(Irrigations);
+    } catch (error) {
+      res.status(500).json({
+        message: error.message,
+      });
+    }
+  });
 
-// Ruta para crear un nuevo usuario
+// Ruta para crear un nuevo riego
 router.post('/',
-  validatorHandler(createUserSchema, 'body'),
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('user'),
+  validatorHandler(createIrrigationSchema, 'body'),
   async (req, res) => {
     const body = req.body;
     const newUser = await service.create(body);
@@ -32,9 +34,11 @@ router.post('/',
 );
 
 
-// Ruta para obtener un usuario por id
+// Ruta para obtener un riego por id
 router.get('/:id',
-  validatorHandler(getUserSchema, 'params'), // Validación de los parámetros
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('user'),
+  validatorHandler(getIrrigationSchema, 'params'), // Validación de los parámetros
   async (req, res) => {
     try {
       const { id } = req.params;
@@ -48,20 +52,20 @@ router.get('/:id',
   }
 );
 
-// Ruta para actualizar un usuario
+// Ruta para actualizar un riego
 router.patch('/:id',
   passport.authenticate('jwt', { session: false }),
-  checkRoles('user'), 
-  validatorHandler(getUserSchema, 'params'), 
-  validatorHandler(updateUserSchema, 'body'), 
+  checkRoles('user', 'device'),
+  validatorHandler(getIrrigationSchema, 'params'),
+  validatorHandler(updateIrrigationSchema, 'body'),
   async (req, res) => {
     try {
       const { id } = req.params;
       const body = req.body;
-      const updatedUser = await service.update(id, body); 
+      const updatedIrrigation = await service.update(id, body);
       res.json({
-        message: 'User updated',
-        data: updatedUser,
+        message: 'Irrigation updated',
+        data: updatedIrrigation,
         id,
       });
     } catch (error) {
@@ -72,18 +76,18 @@ router.patch('/:id',
   }
 );
 
-// Ruta para eliminar un usuario
+// Ruta para eliminar un riego
 router.delete('/:id',
   passport.authenticate('jwt', { session: false }),
-  checkRoles('user'), 
-  validatorHandler(getUserSchema, 'params'), 
+  checkRoles('user'),
+  validatorHandler(getIrrigationSchema, 'params'),
   async (req, res) => {
     try {
       const { id } = req.params;
-      const deletedUser = await service.delete(id); 
+      const deletedIrrigation = await service.delete(id);
       res.json({
-        message: 'User deleted',
-        data: deletedUser,
+        message: 'User Irrigation',
+        data: deletedIrrigation,
       });
     } catch (error) {
       res.status(404).json({

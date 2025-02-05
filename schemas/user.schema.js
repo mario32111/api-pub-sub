@@ -38,7 +38,7 @@ const updateUserSchema = Joi.object({
   zip_code: zip_code,
   hectares_to_irrigate: hectares_to_irrigate,
   birthdate: birthdate,
-  recoveryToken: recoveryToken, // Si el token de recuperación se puede actualizar
+  recoveryToken: recoveryToken,
 });
 
 // Esquema para obtener un usuario por ID

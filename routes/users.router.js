@@ -9,7 +9,7 @@ const passport = require('passport');
 
 router.get('/',
   passport.authenticate('jwt', { session: false }),
-  checkRoles('user'), 
+  checkRoles('user'),
   async (req, res) => {
   try {
     const users = await service.find();
@@ -20,6 +20,21 @@ router.get('/',
     });
   }
 });
+
+router.get('/check-email', async (req, res) => {
+  try {
+    const { email } = req.query; // Obtener el email desde la URL
+    if (!email) {
+      return res.status(400).json({ message: "El email es requerido" });
+    }
+
+    const existingUser = await service.findByEmail(email);
+    res.json({ exists: !!existingUser }); // Devuelve un booleano en lugar del objeto completo
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 
 // Ruta para crear un nuevo usuario
 router.post('/',
@@ -51,14 +66,14 @@ router.get('/:id',
 // Ruta para actualizar un usuario
 router.patch('/:id',
   passport.authenticate('jwt', { session: false }),
-  checkRoles('user'), 
-  validatorHandler(getUserSchema, 'params'), 
-  validatorHandler(updateUserSchema, 'body'), 
+  checkRoles('user'),
+  validatorHandler(getUserSchema, 'params'),
+  validatorHandler(updateUserSchema, 'body'),
   async (req, res) => {
     try {
       const { id } = req.params;
       const body = req.body;
-      const updatedUser = await service.update(id, body); 
+      const updatedUser = await service.update(id, body);
       res.json({
         message: 'User updated',
         data: updatedUser,
@@ -75,12 +90,12 @@ router.patch('/:id',
 // Ruta para eliminar un usuario
 router.delete('/:id',
   passport.authenticate('jwt', { session: false }),
-  checkRoles('user'), 
-  validatorHandler(getUserSchema, 'params'), 
+  checkRoles('user'),
+  validatorHandler(getUserSchema, 'params'),
   async (req, res) => {
     try {
       const { id } = req.params;
-      const deletedUser = await service.delete(id); 
+      const deletedUser = await service.delete(id);
       res.json({
         message: 'User deleted',
         data: deletedUser,

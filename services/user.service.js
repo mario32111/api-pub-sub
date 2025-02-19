@@ -27,6 +27,7 @@ class UsersService {
     const rta = await models.User.findOne({
       where: { email }
     });
+    console.log(email)
     return rta;
   }
 

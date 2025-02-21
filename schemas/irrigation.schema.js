@@ -50,4 +50,8 @@ const getIrrigationSchema = Joi.object({
   id: id.required(),
 });
 
-module.exports = { createIrrigationSchema, updateIrrigationSchema, getIrrigationSchema };
+const getIrrigationsByIdSchema = Joi.object({
+  id: id.required(),
+});
+
+module.exports = { createIrrigationSchema, updateIrrigationSchema, getIrrigationSchema, getIrrigationsByIdSchema };

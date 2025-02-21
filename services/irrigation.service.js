@@ -19,6 +19,15 @@ class IrrigationService {
     return rta;
   }
 
+  // En el servicio
+  async findAllByUserId(user_id) {
+    const rta = await models.Irrigation.findAll({
+      where: { user_id },
+    });
+    return rta;
+  }
+
+
   async findOne(id) {
     const user = await models.Irrigation.findByPk(id);
     if (!user) {

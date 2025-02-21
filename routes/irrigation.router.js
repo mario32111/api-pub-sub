@@ -1,6 +1,6 @@
 const express = require('express');
 const validatorHandler = require('../middlewares/validator.handler');
-const { createIrrigationSchema, updateIrrigationSchema, getIrrigationSchema } = require('../schemas/irrigation.schema');
+const { createIrrigationSchema, updateIrrigationSchema, getIrrigationSchema, getIrrigationsByIdSchema } = require('../schemas/irrigation.schema');
 const IrrigationService = require('../services/irrigation.service');
 const service = new IrrigationService();
 const router = express.Router();
@@ -51,6 +51,23 @@ router.get('/:id',
     }
   }
 );
+
+//Ruta para obtener todos los riegos de un usuario
+router.get('/getAll/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('user'),
+  validatorHandler(getIrrigationsByIdSchema, 'params'),
+  async (req, res) => {
+  try {
+    const { id } = req.params;
+    const irrigations = await service.findAllByUserId(id);
+    res.json(irrigations);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
 
 // Ruta para actualizar un riego
 router.patch('/:id',

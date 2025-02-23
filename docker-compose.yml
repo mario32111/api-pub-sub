@@ -3,16 +3,17 @@ version: '3.8'
 services:
   postgres:
     image: postgres:13
+    container_name: my_postgres
     environment:
       - POSTGRES_DB=hydrolink
       - POSTGRES_USER=mario
       - POSTGRES_PASSWORD=admin123
     ports:
-      - "5432:5432"
+      - "5432:5432"  # Cambia el puerto host si es necesario
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     networks:
-      - my_network
+      - my_network  # Conecta el servicio a la red
 
   pgadmin:
     image: dpage/pgadmin4
@@ -31,7 +32,6 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-
     networks:
       - my_network
     depends_on:
@@ -51,4 +51,4 @@ services:
 
 networks:
   my_network:
-    driver: bridge
+    driver: bridge  # Usa la configuración predeterminada de Docker para la red

@@ -34,7 +34,7 @@ const IrrigationSchema = {
     type: DataTypes.FLOAT,
   },
   location: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.STRING,
   },
   nocturnal_irrigation: {
@@ -63,7 +63,7 @@ const IrrigationSchema = {
     type: DataTypes.STRING,
   },
   last_irrigation_cycle: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.DATE,
   },
   createdAt: {

@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: my_postgres
+    environment:
+      - POSTGRES_DB=hydrolink
+      - POSTGRES_USER=mario
+      - POSTGRES_PASSWORD=admin123
+    ports:
+      - "5432:5432"  # Cambia el puerto host si es necesario
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - my_network  # Conecta el servicio a la red
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@mail.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+    ports:
+      - "5050:80"
+    networks:
+      - my_network
+
+  my_api:
+    image: my_api:latest  # <-- Aquí defines el nombre de la imagen
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - my_network
+    depends_on:
+      - postgres
+    environment:
+      - NODE_ENV=development
+
+  mosquitto:
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+      - "8000:8000"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge  # Usa la configuración predeterminada de Docker para la red

@@ -9,11 +9,12 @@ services:
       - POSTGRES_USER=mario
       - POSTGRES_PASSWORD=admin123
     ports:
-      - "5432:5432"  # Cambia el puerto host si es necesario
+      - "5432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     networks:
-      - my_network  # Conecta el servicio a la red
+      - my_network
+    restart: unless-stopped
 
   pgadmin:
     image: dpage/pgadmin4
@@ -24,20 +25,20 @@ services:
       - "5050:80"
     networks:
       - my_network
+    restart: unless-stopped
 
   my_api:
-    build: .
+    image: marito11/my_api:latest
     ports:
       - "3000:3000"
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+    # ¡Elimina todos los volúmenes aquí!
     networks:
       - my_network
     depends_on:
       - postgres
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
+    restart: unless-stopped
 
   mosquitto:
     image: eclipse-mosquitto
@@ -48,7 +49,8 @@ services:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
     networks:
       - my_network
+    restart: unless-stopped
 
 networks:
   my_network:
-    driver: bridge  # Usa la configuración predeterminada de Docker para la red
+    driver: bridge

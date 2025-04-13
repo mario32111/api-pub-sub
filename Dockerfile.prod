@@ -1,0 +1,21 @@
+# Usa la versión Alpine para una imagen más ligera
+FROM node:16
+
+# Establece el directorio de trabajo
+WORKDIR /usr/src/app
+
+# Copia primero los archivos de dependencias
+COPY package.json package-lock.json ./
+
+# Instala SOLO dependencias de producción (más seguro y liviano)
+RUN npm ci --only=production
+
+# Copia el resto del código
+COPY . .
+
+# Expone el puerto
+EXPOSE 3000
+
+# Usa Node directamente para producción
+CMD ["node", "server.js"]
+

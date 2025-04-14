@@ -2,7 +2,7 @@ const express = require("express");
 const routerApi = require('./routes');
 const cors = require('cors');
 const mqtt = require('mqtt');
-const { config } = require("dotenv");
+const { config } = require("./config/config");
 
 const app = express();
 const port = config.port;

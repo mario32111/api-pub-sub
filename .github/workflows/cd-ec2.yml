@@ -20,21 +20,28 @@ jobs:
           echo "DOCKER_COMPOSE_FILE=docker-compose.prod.yml" >> $GITHUB_ENV
           echo "DOCKERFILE=Dockerfile.prod" >> $GITHUB_ENV
 
-      - name: Create .env file on EC2
+      - name: Create .env file
         run: |
           echo "${{ secrets.ENV_FILE_CONTENTS }}" > .env
+          chmod 600 .env  # Asegura permisos seguros
 
-      - name: Verifica archivos generados
-        run: ls -lh ${{ env.DOCKER_COMPOSE_FILE }} mosquitto.conf .env
+      - name: Verify files
+        run: |
+          ls -lh ${{ env.DOCKER_COMPOSE_FILE }} mosquitto.conf .env
+          [ -f "${{ env.DOCKER_COMPOSE_FILE }}" ] || exit 1
+          [ -f "mosquitto.conf" ] || exit 1
+          [ -f ".env" ] || exit 1
 
-      - name: Copy files to EC2
+      - name: Copy files to EC2 (Safe Transfer)
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "${{ env.DOCKER_COMPOSE_FILE }},mosquitto.conf,.env"  # ¡Usa comas!
-          target: "/opt/hydro-api-v2"
+          source: "${{ env.DOCKER_COMPOSE_FILE }},mosquitto.conf,.env"
+          target: "/home/ubuntu/deploy-temp"  # Directorio temporal con permisos
+          overwrite: true
+          strip_components: 0
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -43,7 +50,23 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # 1. Prepara directorio con permisos
+            sudo mkdir -p /opt/hydro-api-v2
+            sudo chown -R ubuntu:ubuntu /opt/hydro-api-v2
+            sudo chmod 755 /opt/hydro-api-v2
+
+            # 2. Mueve archivos desde temp
+            mv /home/ubuntu/deploy-temp/* /opt/hydro-api-v2/
+            chmod 644 /opt/hydro-api-v2/*  # Permisos seguros
+
+            # 3. Limpieza y deploy
             cd /opt/hydro-api-v2
-            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} down
+            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} down || true
             docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} pull
-            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d
+            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d --build
+
+            # 4. Limpia temporal
+            rm -rf /home/ubuntu/deploy-temp
+
+            # 5. Verificación
+            docker ps | grep hydro-api || echo "⚠️ Error: Containers not running!"

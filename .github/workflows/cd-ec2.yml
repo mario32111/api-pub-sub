@@ -19,48 +19,54 @@ jobs:
           echo "DOCKER_COMPOSE_FILE=docker-compose.prod.yml" >> $GITHUB_ENV
           echo "DOCKERFILE=Dockerfile.prod" >> $GITHUB_ENV
 
-      - name: Create and secure .env file
+      - name: Create .env file with secure permissions
         run: |
+          # Crea el archivo .env con permisos temporales de lectura
           echo "${{ secrets.ENV_FILE_CONTENTS }}" > .env
-          chmod 640 .env  # Permisos balanceados (usuario:lectura+escritura, grupo:lectura)
+          chmod 644 .env  # Permisos temporales para la transferencia
 
-      - name: Verify files
+      - name: Verify files and permissions
         run: |
           ls -lh ${{ env.DOCKER_COMPOSE_FILE }} mosquitto.conf .env
-          [ $(stat -c %a .env) -eq 640 ] || { echo "ERROR: Permisos incorrectos en .env"; exit 1; }
+          [ -f "${{ env.DOCKER_COMPOSE_FILE }}" ] || { echo "ERROR: Archivo compose no encontrado"; exit 1; }
+          [ -f ".env" ] || { echo "ERROR: Archivo .env no encontrado"; exit 1; }
 
-      - name: Transfer files (safe method)
-        uses: appleboy/scp-action@v0.1.7
+      - name: Transfer files using rsync (more reliable)
+        uses: burnett01/rsync-deployments@5.2.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "${{ env.DOCKER_COMPOSE_FILE }},mosquitto.conf,.env"
-          target: "/home/ubuntu/deploy_temp"  # Directorio temporal accesible
-          overwrite: true
-          strip_components: 0
+          switches: -avzr --delete
+          path: |
+            ${{ env.DOCKER_COMPOSE_FILE }}
+            mosquitto.conf
+            .env
+          remote_path: /home/ubuntu/deploy_temp/
+          remote_host: ${{ secrets.EC2_HOST }}
+          remote_user: ubuntu
+          remote_key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Deploy application
+      - name: Secure deployment
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 1. Prepara directorio con permisos
+            # 1. Prepare target directory
             sudo mkdir -p /opt/hydro-api-v2
             sudo chown -R ubuntu:ubuntu /opt/hydro-api-v2
+            sudo chmod 755 /opt/hydro-api-v2
 
-            # 2. Mueve archivos preservando permisos
+            # 2. Move files securely
             sudo mv /home/ubuntu/deploy_temp/* /opt/hydro-api-v2/
-            sudo chmod 640 /opt/hydro-api-v2/.env  # Asegura permisos seguros
+            sudo chmod 600 /opt/hydro-api-v2/.env  # Restrict .env permissions
 
-            # 3. Limpieza y despliegue
+            # 3. Docker deployment
             cd /opt/hydro-api-v2
             docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} down || true
-            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} pull
-            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d --build
+            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} build --no-cache
+            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d --force-recreate
 
-            # 4. Verificación
+            # 4. Cleanup and verification
+            rm -rf /home/ubuntu/deploy_temp
             docker ps -a | grep hydro-api
-            sudo rm -rf /home/ubuntu/deploy_temp
+            docker logs hydro-api  # Verifica logs iniciales

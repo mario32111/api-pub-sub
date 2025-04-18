@@ -1,0 +1,37 @@
+name: "Flujo CD"
+run-name: "Flujo CD"
+on:
+  workflow_dispatch:
+    inputs:
+      cloud:
+        description: "Proveedor Cloud"
+        required: true
+        default: "AWS"
+        options: ["AWS"]
+
+jobs:
+  aws:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.cloud == 'AWS'
+    steps:
+      - name: "Configurar credenciales de AWS"
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Crear archivo de configuración para AppRunner
+        run:  |
+          echo '{
+            "ServiceArn": "${{ vars.AWS_APPRUNNER_ARN}}",
+            "SourceConfiguration": {
+                "ImageRepository": {
+                    "ImageIdentifier": "${{ vars.AWS_REGISTRY }}/${{ vars.AWS_REGISTRY_ALIAS }}/${{ vars.AWS_REPOSITORY }}:latest",
+                    "ImageRepositoryType": "ECR_PUBLIC"
+                }
+            }
+          }' > apprunner.json
+      - name: Actualizar app en AWS App Runner
+        run: |
+          aws apprunner update-service \
+            --cli-input-json file://apprunner.json

@@ -34,6 +34,7 @@ jobs:
         run: |
           scp -o StrictHostKeyChecking=no \
               ${{ env.DOCKER_COMPOSE_FILE }} \
+              ${{ env.DOCKERFILE}} \
               mosquitto.conf \
               .env \
               ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/deploy_temp/

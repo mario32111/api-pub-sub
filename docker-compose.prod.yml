@@ -30,7 +30,7 @@ services:
   my_api:
     image: marito11/my_api:latest
     ports:
-      - "3000:3000"
+      - "443:3000"
     # ¡Elimina todos los volúmenes aquí!
     networks:
       - my_network

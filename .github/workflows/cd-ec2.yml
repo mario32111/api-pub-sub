@@ -54,12 +54,17 @@ jobs:
             sudo mv /home/ubuntu/deploy_temp/* /opt/hydro-api-v2/
             sudo chmod 600 /opt/hydro-api-v2/.env
 
-            # 3. Docker deployment
+            # 3. Ejecuta migraciones
+            cd /opt/hydro-api-v2
+            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run --rm my_api npm run migrations:run
+
+            # 4. Docker deployment
             cd /opt/hydro-api-v2
             docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} down || true
             docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} pull
             docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d --build
 
-            # 4. Verification
+            # 5. Verification
             docker ps -a | grep hydro-api
             rm -rf /home/ubuntu/deploy_temp
+

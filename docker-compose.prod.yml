@@ -9,7 +9,7 @@ services:
       - POSTGRES_USER=mario
       - POSTGRES_PASSWORD=admin123
     ports:
-      - "5432:5432"
+      - "5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     networks:
@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
 
   my_api:
-    image: marito11/my_api:latest
+    image: marito11/hydro-api:latest
     ports:
       - "443:3000"
     # ¡Elimina todos los volúmenes aquí!

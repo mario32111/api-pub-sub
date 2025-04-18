@@ -15,35 +15,32 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set environment variables
-        id: set-env
         run: |
           echo "DOCKER_COMPOSE_FILE=docker-compose.prod.yml" >> $GITHUB_ENV
           echo "DOCKERFILE=Dockerfile.prod" >> $GITHUB_ENV
 
-      - name: Create .env file
+      - name: Create and secure .env file
         run: |
           echo "${{ secrets.ENV_FILE_CONTENTS }}" > .env
-          chmod 600 .env  # Asegura permisos seguros
+          chmod 640 .env  # Permisos balanceados (usuario:lectura+escritura, grupo:lectura)
 
       - name: Verify files
         run: |
           ls -lh ${{ env.DOCKER_COMPOSE_FILE }} mosquitto.conf .env
-          [ -f "${{ env.DOCKER_COMPOSE_FILE }}" ] || exit 1
-          [ -f "mosquitto.conf" ] || exit 1
-          [ -f ".env" ] || exit 1
+          [ $(stat -c %a .env) -eq 640 ] || { echo "ERROR: Permisos incorrectos en .env"; exit 1; }
 
-      - name: Copy files to EC2 (Safe Transfer)
+      - name: Transfer files (safe method)
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "${{ env.DOCKER_COMPOSE_FILE }},mosquitto.conf,.env"
-          target: "/home/ubuntu/deploy-temp"  # Directorio temporal con permisos
+          target: "/home/ubuntu/deploy_temp"  # Directorio temporal accesible
           overwrite: true
           strip_components: 0
 
-      - name: Deploy via SSH
+      - name: Deploy application
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -53,20 +50,17 @@ jobs:
             # 1. Prepara directorio con permisos
             sudo mkdir -p /opt/hydro-api-v2
             sudo chown -R ubuntu:ubuntu /opt/hydro-api-v2
-            sudo chmod 755 /opt/hydro-api-v2
 
-            # 2. Mueve archivos desde temp
-            mv /home/ubuntu/deploy-temp/* /opt/hydro-api-v2/
-            chmod 644 /opt/hydro-api-v2/*  # Permisos seguros
+            # 2. Mueve archivos preservando permisos
+            sudo mv /home/ubuntu/deploy_temp/* /opt/hydro-api-v2/
+            sudo chmod 640 /opt/hydro-api-v2/.env  # Asegura permisos seguros
 
-            # 3. Limpieza y deploy
+            # 3. Limpieza y despliegue
             cd /opt/hydro-api-v2
             docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} down || true
             docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} pull
             docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d --build
 
-            # 4. Limpia temporal
-            rm -rf /home/ubuntu/deploy-temp
-
-            # 5. Verificación
-            docker ps | grep hydro-api || echo "⚠️ Error: Containers not running!"
+            # 4. Verificación
+            docker ps -a | grep hydro-api
+            sudo rm -rf /home/ubuntu/deploy_temp

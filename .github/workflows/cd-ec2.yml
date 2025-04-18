@@ -67,4 +67,3 @@ jobs:
             # 5. Verification
             docker ps -a | grep hydro-api
             rm -rf /home/ubuntu/deploy_temp
-

@@ -41,16 +41,15 @@ jobs:
           registry-type: public
       - name: "Compilar y Subir imagen de Docker"
         env:
-          REGISTRY: ${{ steps.login-ecr-publico.outputs.registry }}
+          REGISTRY: public.ecr.aws  # Fija el registro (evita problemas de variable)
         uses: docker/build-push-action@v4
         with:
-          context: .
-          file: ./Dockerfile.prod
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ vars.AWS_REGISTRY_ALIAS }}/${{ vars.AWS_REPOSITORY }}:${{ env.DOCKER_TAG }}
-          build-args: |
-            VCS_REF=${{ env.VCS_REF }}
-            BUILD_DATE=${{ env.BUILD_DATE }}
-
+            context: .
+            file: ./Dockerfile.prod
+            platforms: linux/amd64  # ¡Solo una plataforma!
+            push: true
+            tags: |
+              ${{ env.REGISTRY }}/${{ vars.AWS_REGISTRY_ALIAS }}/${{ vars.AWS_REPOSITORY }}:${{ env.DOCKER_TAG }}
+            build-args: |
+              VCS_REF=${{ env.VCS_REF }}
+              BUILD_DATE=${{ env.BUILD_DATE }}

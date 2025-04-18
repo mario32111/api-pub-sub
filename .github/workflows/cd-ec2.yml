@@ -33,10 +33,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: |
-            ${{ env.DOCKER_COMPOSE_FILE }}
-            mosquitto.conf
-            .env
+          source: "${{ env.DOCKER_COMPOSE_FILE }},mosquitto.conf,.env"  # ¡Usa comas!
           target: "/opt/hydro-api-v2"
 
       - name: Deploy via SSH
@@ -46,7 +43,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /opt/hydro-api
+            cd /opt/hydro-api-v2
             docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} down
             docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} pull
             docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d

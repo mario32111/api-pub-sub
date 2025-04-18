@@ -17,5 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # Usa Node directamente para producción
-CMD ["node", "server.js"]
-
+CMD ["node", "index.js"]

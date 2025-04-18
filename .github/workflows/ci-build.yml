@@ -21,7 +21,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
       - name: "Configurar tag y etiquetas para ${{ github.ref }}"
         run: |
-          if [ "$GITHUB_REF" == "refs/heads/master" ]; then
+          if [ "$GITHUB_REF" == "refs/heads/main" ]; then
             echo "DOCKER_TAG=latest" >> $GITHUB_ENV
           else
             echo "DOCKER_TAG=snapshot" >> $GITHUB_ENV

@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:  # Esto permite ejecución manual desde GitHub Actions
+
 
 jobs:
   deploy:
@@ -69,4 +71,3 @@ jobs:
             docker ps -a | grep hydro-api
             rm -rf /home/ubuntu/deploy_temp
 
-            

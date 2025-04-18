@@ -23,7 +23,9 @@ jobs:
       - name: Create .env file on EC2
         run: |
           echo "${{ secrets.ENV_FILE_CONTENTS }}" > .env
-        # Esto crea el archivo .env usando el contenido almacenado en el secreto
+
+      - name: Verifica archivos generados
+        run: ls -lh ${{ env.DOCKER_COMPOSE_FILE }} mosquitto.conf .env
 
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -32,9 +34,9 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           source: |
-            docker-compose.${{ env.DOCKER_COMPOSE_FILE }}
+            ${{ env.DOCKER_COMPOSE_FILE }}
             mosquitto.conf
-            .env  # Ahora se incluye el .env creado
+            .env
           target: "/opt/hydro-api-v2"
 
       - name: Deploy via SSH

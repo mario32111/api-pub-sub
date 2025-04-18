@@ -1,5 +1,5 @@
-name: "Flujo CD"
-run-name: "Flujo CD"
+name: "Flujo CD App Runner"
+run-name: "Flujo CD App Runner"
 on:
   workflow_dispatch:
     inputs:

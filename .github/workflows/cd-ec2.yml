@@ -1,0 +1,50 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set environment variables
+        id: set-env
+        run: |
+          echo "DOCKER_COMPOSE_FILE=docker-compose.prod.yml" >> $GITHUB_ENV
+          echo "DOCKERFILE=Dockerfile.prod" >> $GITHUB_ENV
+
+      - name: Create .env file on EC2
+        run: |
+          echo "${{ secrets.ENV_FILE_CONTENTS }}" > .env
+        # Esto crea el archivo .env usando el contenido almacenado en el secreto
+
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: |
+            docker-compose.${{ env.DOCKER_COMPOSE_FILE }}
+            mosquitto.conf
+            .env  # Ahora se incluye el .env creado
+          target: "/opt/hydro-api-v2"
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /opt/hydro-api
+            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} down
+            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} pull
+            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d

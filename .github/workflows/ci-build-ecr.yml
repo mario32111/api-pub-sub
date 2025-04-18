@@ -1,5 +1,5 @@
-name: "Flujo CI-Build"
-run-name: "Flujo CI - Build"
+name: "Flujo CI-Build ECR"
+run-name: "Flujo CI - Build ECR"
 on:
   workflow_dispatch:
     inputs:
